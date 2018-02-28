@@ -160,6 +160,7 @@ void scherbakovdv::lab5()
 		perror("diff>Eps");
 	else if (counter==100)
 		perror("Out of cycle");
+	//boop
 >>>>>>> 2110a4ed8575d652be8c9ed2fe967b9763cf37bc
 }
 
