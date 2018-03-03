@@ -74,6 +74,8 @@ void scherbakovdv::lab3()
 	//Обратный ход
 	for (int i=N-2;i!=-1;i--)
 		x[i] = al[i]*x[i+1]+bt[i];
+	delete[] al;
+	delete[] bt;
 }
 
 
@@ -83,8 +85,7 @@ void scherbakovdv::lab3()
  */
 void scherbakovdv::lab4()
 {
-	//Достаточное признак сходимости метода простых итераций - превышение нормой alpha 1
-	//Средняя разность между новыми и старыми значениями
+	//TODO: узнать у жалнина про разницу между методами якоби и простой итерации
 	double diff;
 	//Допустимая погрешность
 	const double Eps=0.1E-10;
@@ -106,6 +107,7 @@ void scherbakovdv::lab4()
 		counter++;
 		memcpy(xOld,x,sizeof(double)*N);
 	} while ((diff>Eps)&&(counter<100));
+	delete[] xOld;
 	if (diff>Eps) {
 		perror("diff>Eps");
 	} else if (counter==100) {
@@ -138,18 +140,16 @@ void scherbakovdv::lab5()
 					x[i]-=A[i][j]*xOld[j];
 			x[i]/=A[i][i];
 		}
-		diff+=fabs(x[0]-xOld[0]);
-		diff/=N;
 		diff=fabs(x[0]-xOld[0]);
 		counter++;
 		memcpy(xOld,x,sizeof(double)*N);
 	} while ((diff>Eps)&&(counter<100));
-	if (diff>Eps)
-		throw 1;
-	else if (counter==100)
-		throw 2;
-	else if (counter==100)
+	delete[] xOld;
+	if (diff>Eps) {
+		perror("diff>Eps");
+	} else if (counter==100) {
 		perror("Out of cycle");
+	}
 }
 
 
@@ -159,7 +159,49 @@ void scherbakovdv::lab5()
  */
 void scherbakovdv::lab6()
 {
-
+	//Допустимая погрешность
+	const double Eps=0.1E-10;
+	printf("LAB 6: Eps is %.2e",Eps);
+	//Аварийный счётчик
+	double counter=0;
+	//vec - вектор невязок (интересно, почему так называется)
+	double *vec = new double[N], diff=0;
+	//начальное приближение будет b
+	memcpy(x,b,sizeof(double)*N);
+	do {
+		memcpy(vec,b,sizeof(double)*N);
+		for (int i=0;i<N;i++)
+			for (int j=0;j<N;j++)
+				vec[i]-=A[i][j]*x[j];
+		//Поиск параметра тау в формуле X^(k+1)=X^(k)-tau*vec
+		//tau находится по формуле tau=-num/den
+		//num=(A*vec,vec) <- скалярное произведение
+		//den=(A8vec,A*vec)
+		//Из-за обилия A*vec я счёл разумным добавить вектор Avec
+		double tau=0, num=0, den=0, *Avec = new double[N];
+		for (int i=0;i<N;i++)
+			for (int j=0;j<N;j++)
+				Avec[i]=A[i][j]*vec[j];
+		for (int i=0;i<N;i++)
+		{
+			num+=Avec[i]*vec[i];
+			//Забавно: я забыл поставить "+=" и поставил просто "=", но результат всё равно сошёлся
+			den+=Avec[i]*Avec[i];
+		}
+		// Прощай, овёс
+		delete[] Avec;
+		tau=-num/den;
+		for (int i=0;i<N;i++)
+		{
+			x[i]-=tau*vec[i];
+			//diff=x[i]-xOld[i], но так экономнее
+			diff+=fabs(tau*vec[i]);
+		}
+		//Для чистоты эксперимента будем проверять среднее арифметическое разности
+		diff/=N;
+		counter++;
+	} while ((diff>Eps)&&(counter<1000));
+	delete[] vec;
 }
 
 
