@@ -10,7 +10,7 @@ void scherbakovdv::lab1()
 
 
 /**
- * Метод Гаусса с выбором главного элемента
+ * Метод Гаусса с выбором главного элемента - done and passed
  */
 void scherbakovdv::lab2()
 {
@@ -58,7 +58,7 @@ void scherbakovdv::lab2()
 
 
 /**
- * Метод прогонки
+ * Метод прогонки - done and passed
  */
 void scherbakovdv::lab3()
 {
@@ -81,7 +81,7 @@ void scherbakovdv::lab3()
 
 
 /**
- * Метод простых итераций
+ * Метод простых итераций - working
  */
 void scherbakovdv::lab4()
 {
@@ -118,7 +118,7 @@ void scherbakovdv::lab4()
 
 
 /**
- * Метод Якоби или Зейделя
+ * Метод Якоби или Зейделя - done
  */
 void scherbakovdv::lab5()
 {
@@ -155,7 +155,7 @@ void scherbakovdv::lab5()
 
 
 /**
- * Метод минимальных невязок
+ * Метод минимальных невязок - done
  */
 void scherbakovdv::lab6()
 {
@@ -207,7 +207,7 @@ void scherbakovdv::lab6()
 
 
 /**
- * Метод сопряженных градиентов
+ * Метод сопряженных градиентов - working
  */
 void scherbakovdv::lab7()
 {
@@ -215,6 +215,10 @@ void scherbakovdv::lab7()
 }
 
 
+
+/**
+ * Метод вращения для нахождения собственных значений матрицы
+ */
 void scherbakovdv::lab8()
 {
 
