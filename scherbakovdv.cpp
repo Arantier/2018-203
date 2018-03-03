@@ -224,7 +224,16 @@ void scherbakovdv::lab8()
 
 }
 
-void scherbakovdv::lab9() {}
+
+
+/**
+ * Нахождение наибольшего по модолю собственного значения матрицы
+ */
+void scherbakovdv::lab9() 
+{
+	
+}
+
 
 
 std::string scherbakovdv::get_name()
