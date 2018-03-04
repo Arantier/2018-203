@@ -244,29 +244,12 @@ void scherbakovdv::lab7()
 	int counter=0;
 	double diff=0;
 	//начальное приближение будет нулями
-	double *xOld = new double[N];
+	double *xOld = new double[N];	
 	memset(xOld,0,sizeof(double)*N);
 	do {
-		double *v, *w, *wp;
-		v = mul(A,xOld);
+		double *ff = mul(A,x);
 		for (int i=0;i<N;i++)
-			v[i]-=b[i];
-		w = mul(A,v);
-		wp = mul(A,w);
-		double r = scala(w,v);
-		double rModul = scala(wp,w);
-		r = (r==rModul) ? 1 : r/rModul;
-		for (int i=0;i<N;i++)
-		{
-			x[i]=xOld[i]-r*v[i];
-			if (fabs(x[i]-xOld[i])>diff)
-				diff=fabs(x[i]-xOld[i]);
-		}
-		memcpy(xOld,x,sizeof(double)*N);
-		delete[] v;
-		delete[] w;
-		delete[] wp;
-		counter++;
+			ff[i]-=b[i];
 	} while ((diff>Eps)&&(counter<1000));
 	delete[] xOld;
 }
