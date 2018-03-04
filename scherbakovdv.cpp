@@ -1,6 +1,41 @@
 #include "scherbakovdv.h"
 
 /**
+ * Поиск скалярного произведения
+ */
+double scherbakovdv::scala(double* l, double* r){
+	double res=0;
+	for (int i=0;i<N;i++)
+		res+=l[i]*r[i];
+	return res;
+}
+
+/**
+ * Парочка произведений матриц и векторов
+ */
+double* scherbakovdv::mul(double** mat, double* vec){
+	double* res = new double[N];
+	for (int i=0;i<N;i++)
+		for (int j=0;j<N;j++)
+			res[i]=mat[i][j]*vec[j];
+	return res;
+}
+double** scherbakovdv::mul(double** mat1, double** mat2){
+	double** res = new double*[N];
+	for (int i=0;i<N;i++)
+	{
+		res[i] = new double[N];
+		for (int j=0;j<N;j++)
+		{
+			res[i][j]=0;
+			for (int k=0;k<N;k++)
+				res[i][j]+=mat1[i][k]*mat2[k][j];
+		}
+	}
+	return res;
+}
+
+/**
  * Введение в дисциплину
  */
 void scherbakovdv::lab1()
@@ -90,7 +125,7 @@ void scherbakovdv::lab4()
 	//Допустимая погрешность
 	const double Eps=0.1E-10;
 	//Аварийный счётчик
-	double counter=0;
+	int counter=0;
 	//Переходной массив иксов
 	double* xOld = new double[N];
 	for (int i=0;i<N;i++)
@@ -128,7 +163,7 @@ void scherbakovdv::lab5()
 	//Допустимая погрешность
 	const double Eps=0.1E-10;
 	//Аварийный счётчик
-	double counter=0;
+	int counter=0;
 	//Переходной массив иксов
 	double* xOld = new double[N];
 	memcpy(xOld,b,sizeof(double)*N);
@@ -163,7 +198,7 @@ void scherbakovdv::lab6()
 	const double Eps=0.1E-10;
 	printf("LAB 6: Eps is %.2e",Eps);
 	//Аварийный счётчик
-	double counter=0;
+	int counter=0;
 	//vec - вектор невязок (интересно, почему так называется)
 	double *vec = new double[N], diff=0;
 	//начальное приближение будет b
@@ -178,19 +213,9 @@ void scherbakovdv::lab6()
 		//num=(A*vec,vec) <- скалярное произведение
 		//den=(A8vec,A*vec)
 		//Из-за обилия A*vec я счёл разумным добавить вектор Avec
-		double tau=0, num=0, den=0, *Avec = new double[N];
-		for (int i=0;i<N;i++)
-			for (int j=0;j<N;j++)
-				Avec[i]=A[i][j]*vec[j];
-		for (int i=0;i<N;i++)
-		{
-			num+=Avec[i]*vec[i];
-			//Забавно: я забыл поставить "+=" и поставил просто "=", но результат всё равно сошёлся
-			den+=Avec[i]*Avec[i];
-		}
-		// Прощай, овёс
+		double tau=0, *Avec = mul(A,vec);
+		tau=-scala(Avec,vec)/scala(Avec,Avec);
 		delete[] Avec;
-		tau=-num/den;
 		for (int i=0;i<N;i++)
 		{
 			x[i]-=tau*vec[i];
@@ -211,7 +236,48 @@ void scherbakovdv::lab6()
  */
 void scherbakovdv::lab7()
 {
-
+	//Допустимая погрешность
+	const double Eps=0.1E-10;
+	printf("LAB 7: Eps is %.2e",Eps);
+	//Аварийный счётчик
+	int counter=0;
+	double diff=0;
+	//начальное приближение будет b
+	memcpy(x,b,sizeof(double)*N);
+	//
+	double *r = new double[N];
+	double *p = new double[N];
+	memcpy(r,b,sizeof(double)*N);
+	for (int i=0;i<N;i++)
+		for (int j=0;j<N;j++)
+			r[i]-=A[i][j]*b[j];
+	memcpy(p,r,sizeof(double)*N);
+	double *xOld = new double[N];
+	do {
+		double* Ap = mul(A,p);
+		double alpha = scala(r,r)/scala(Ap,p);
+		double *rOld = new double[N];
+		memcpy(rOld,r,sizeof(double)*N);
+		memcpy(xOld,x,sizeof(double)*N);
+		for (int i=0;i<N;i++)
+		{
+			x[i] = xOld[i]+alpha*p[i];
+			r[i] = rOld[i]-alpha*Ap[i];
+		}
+		double betha=scala(r,r)/scala(rOld,rOld);
+		for (int i=0;i<N;i++)
+		{
+			diff+=fabs(x[i]-xOld[i]);
+			p[i] = r[i]+betha*p[i];
+		}
+		delete[] Ap;
+		delete[] rOld;
+		diff/=N;
+		counter++;
+	} while ((diff>Eps)&&(counter<100));
+	delete[] xOld;
+	delete[] r;
+	delete[] p;
 }
 
 
