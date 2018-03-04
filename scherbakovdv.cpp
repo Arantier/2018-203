@@ -15,9 +15,10 @@ double scherbakovdv::scala(double* l, double* r){
  */
 double* scherbakovdv::mul(double** mat, double* vec){
 	double* res = new double[N];
+	memset(res,0,sizeof(double)*N);
 	for (int i=0;i<N;i++)
 		for (int j=0;j<N;j++)
-			res[i]=mat[i][j]*vec[j];
+			res[i]+=mat[i][j]*vec[j];
 	return res;
 }
 double** scherbakovdv::mul(double** mat1, double** mat2){
@@ -237,47 +238,37 @@ void scherbakovdv::lab6()
 void scherbakovdv::lab7()
 {
 	//Допустимая погрешность
-	const double Eps=0.1E-10;
+	const double Eps=1E-10;
 	printf("LAB 7: Eps is %.2e",Eps);
 	//Аварийный счётчик
 	int counter=0;
 	double diff=0;
-	//начальное приближение будет b
-	memcpy(x,b,sizeof(double)*N);
-	//
-	double *r = new double[N];
-	double *p = new double[N];
-	memcpy(r,b,sizeof(double)*N);
-	for (int i=0;i<N;i++)
-		for (int j=0;j<N;j++)
-			r[i]-=A[i][j]*b[j];
-	memcpy(p,r,sizeof(double)*N);
+	//начальное приближение будет нулями
 	double *xOld = new double[N];
+	memset(xOld,0,sizeof(double)*N);
 	do {
-		double* Ap = mul(A,p);
-		double alpha = scala(r,r)/scala(Ap,p);
-		double *rOld = new double[N];
-		memcpy(rOld,r,sizeof(double)*N);
+		double *v, *w, *wp;
+		v = mul(A,xOld);
+		for (int i=0;i<N;i++)
+			v[i]-=b[i];
+		w = mul(A,v);
+		wp = mul(A,w);
+		double r = scala(w,v);
+		double rModul = scala(wp,w);
+		r = (r==rModul) ? 1 : r/rModul;
+		for (int i=0;i<N;i++)
+		{
+			x[i]=xOld[i]-r*v[i];
+			if (fabs(x[i]-xOld[i])>diff)
+				diff=fabs(x[i]-xOld[i]);
+		}
 		memcpy(xOld,x,sizeof(double)*N);
-		for (int i=0;i<N;i++)
-		{
-			x[i] = xOld[i]+alpha*p[i];
-			r[i] = rOld[i]-alpha*Ap[i];
-		}
-		double betha=scala(r,r)/scala(rOld,rOld);
-		for (int i=0;i<N;i++)
-		{
-			diff+=fabs(x[i]-xOld[i]);
-			p[i] = r[i]+betha*p[i];
-		}
-		delete[] Ap;
-		delete[] rOld;
-		diff/=N;
+		delete[] v;
+		delete[] w;
+		delete[] wp;
 		counter++;
-	} while ((diff>Eps)&&(counter<100));
+	} while ((diff>Eps)&&(counter<1000));
 	delete[] xOld;
-	delete[] r;
-	delete[] p;
 }
 
 
