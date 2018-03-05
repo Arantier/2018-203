@@ -1,5 +1,5 @@
 #include "scherbakovdv.h"
-
+#define MSIZE sizeof(double)*N
 /**
  * Поиск скалярного произведения
  */
@@ -238,19 +238,46 @@ void scherbakovdv::lab6()
 void scherbakovdv::lab7()
 {
 	//Допустимая погрешность
-	const double Eps=1E-10;
+	const double Eps=0.1E-10;
 	printf("LAB 7: Eps is %.2e",Eps);
 	//Аварийный счётчик
 	int counter=0;
-	double diff=0;
-	//начальное приближение будет нулями
-	double *xOld = new double[N];	
-	memset(xOld,0,sizeof(double)*N);
-	do {
-		double *ff = mul(A,x);
+	double diff;
+	//начальное приближение будет b
+	memset(x,0,sizeof(double)*N);
+	//
+	double *AGrad = new double[N];
+	double *SDir = new double[N];
+	double *xOld = new double[N];
+	memcpy(AGrad,b,MSIZE);
 		for (int i=0;i<N;i++)
-			ff[i]-=b[i];
-	} while ((diff>Eps)&&(counter<1000));
+			for (int j=0;j<N;j++)
+				AGrad[i]-=A[i][j]*x[j];
+	memcpy(SDir,AGrad,MSIZE);
+	do {
+		double *AGrOld = new double[N];
+		double* A_SDir = mul(A,SDir);
+		double koeff = scala(AGrad,AGrad)/scala(A_SDir,SDir);
+		memcpy(xOld,x,MSIZE);
+		memcpy(AGrOld,AGrad,MSIZE);
+		for (int i=0;i<N;i++){
+			x[i]+=koeff*SDir[i];
+			AGrad[i]-=koeff*A_SDir[i];
+		}
+		delete[] A_SDir;
+		koeff = scala(AGrad,AGrad)/scala(AGrOld,AGrOld);
+		delete[] AGrOld;
+		for (int i=0;i<N;i++)
+			SDir[i]=AGrad[i]+koeff*SDir[i];
+		diff=fabs(x[0]-xOld[0]);
+		for (int i=1;i<N;i++)
+			if (fabs(x[i]-xOld[i])>diff)
+				diff=fabs(x[i]-xOld[i]);
+		counter++;
+	} while ((diff>Eps)&&(counter<100));
+	// printf("Counter equals:%d",counter);
+	delete[] AGrad;
+	delete[] SDir;
 	delete[] xOld;
 }
 
