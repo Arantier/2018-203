@@ -121,7 +121,7 @@ void scherbakovdv::lab3()
  */
 void scherbakovdv::lab4()
 {
-	//TODO: узнать у жалнина про разницу между методами якоби и простой итерации
+	//Условие работоспособности метода: корень суммы квадратов всех элементов матрицы меньше единицы
 	double diff;
 	//Допустимая погрешность
 	const double Eps=0.1E-10;
@@ -129,26 +129,53 @@ void scherbakovdv::lab4()
 	int counter=0;
 	//Переходной массив иксов
 	double* xOld = new double[N];
-	for (int i=0;i<N;i++)
-		xOld[i]=0;
+	// Матрица итерационной формы системы
+	// Для неё условием сходимости является не прывышение суммой всех элементов строки единицы
+	double** AA = new double*[N];
+	double* bb = new double[N];
+	for (int i=0;i<N;i++){
+		AA[i]=new double[N];
+		for (int j=0;j<N;j++)
+			AA[i][j]=A[i][j];
+		bb[i]=b[i];
+	}
+	//Первый этап - приведение матрицы к итерационной форме
+	for (int i=0;i<N;i++){
+		double maxEl = fabs(AA[i][i]);
+		int row = i;
+		for (int j=i+1;j<N;j++)
+			if (maxEl<fabs(AA[j][i])){
+				row = j;
+				maxEl=fabs(AA[j][i]);
+			}
+		if (row!=i){
+			for (int j = i; j < N; j++)
+				swap(AA[i][j], AA[row][j]);
+			swap(bb[i], bb[row]);
+		}
+		maxEl = AA[i][i];
+		bb[i] /= AA[i][i];
+		AA[i][i] = 0;
+		for (int j = 0; j<N; j++)
+			AA[i][j] /= maxEl;
+	}
+	//Второй этап - получение x
+	memset(xOld,0,MSIZE);
 	do {
-		for (int i=0;i<N;i++) {
-			x[i]=b[i];
+		for (int i=0;i<N;i++){
+			x[i]=bb[i];
 			for (int j=0;j<N;j++)
-				if (i!=j)
-					x[i]-=A[i][j]*xOld[j];
-			x[i]/=A[i][i];
+				x[i]-=AA[i][j]*xOld[j];
 		}
 		diff=fabs(x[0]-xOld[0]);
+		for (int i=1;i<N;i++)
+			if (fabs(x[i]-xOld[i])>diff)
+				diff=fabs(x[i]-xOld[i]);
 		counter++;
 		memcpy(xOld,x,sizeof(double)*N);
-	} while ((diff>Eps)&&(counter<100));
+	} while ((diff>Eps)&&(counter<1000));
+	printf("Counter=%d, diff=%.2f",counter,diff);
 	delete[] xOld;
-	if (diff>Eps) {
-		perror("diff>Eps");
-	} else if (counter==100) {
-		perror("Out of cycle");
-	}
 }
 
 
@@ -210,9 +237,6 @@ void scherbakovdv::lab6()
 			for (int j=0;j<N;j++)
 				vec[i]-=A[i][j]*x[j];
 		//Поиск параметра тау в формуле X^(k+1)=X^(k)-tau*vec
-		//tau находится по формуле tau=-num/den
-		//num=(A*vec,vec) <- скалярное произведение
-		//den=(A8vec,A*vec)
 		//Из-за обилия A*vec я счёл разумным добавить вектор Avec
 		double tau=0, *Avec = mul(A,vec);
 		tau=-scala(Avec,vec)/scala(Avec,Avec);
@@ -233,7 +257,7 @@ void scherbakovdv::lab6()
 
 
 /**
- * Метод сопряженных градиентов - working
+ * Метод сопряженных градиентов - done
  */
 void scherbakovdv::lab7()
 {
@@ -243,9 +267,6 @@ void scherbakovdv::lab7()
 	//Аварийный счётчик
 	int counter=0;
 	double diff;
-	//начальное приближение будет b
-	memset(x,0,sizeof(double)*N);
-	//
 	double *AGrad = new double[N];
 	double *SDir = new double[N];
 	double *xOld = new double[N];
