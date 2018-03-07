@@ -46,7 +46,7 @@ void scherbakovdv::lab1()
 
 
 /**
- * Метод Гаусса с выбором главного элемента - done and passed
+ * Метод Гаусса с выбором главного элемента - passed
  */
 void scherbakovdv::lab2()
 {
@@ -117,7 +117,7 @@ void scherbakovdv::lab3()
 
 
 /**
- * Метод простых итераций - working
+ * Метод простых итераций - passed
  */
 void scherbakovdv::lab4()
 {
@@ -181,7 +181,7 @@ void scherbakovdv::lab4()
 
 
 /**
- * Метод Якоби или Зейделя - done
+ * Метод Якоби или Зейделя - passed
  */
 void scherbakovdv::lab5()
 {
@@ -239,11 +239,11 @@ void scherbakovdv::lab6()
 		//Поиск параметра тау в формуле X^(k+1)=X^(k)-tau*vec
 		//Из-за обилия A*vec я счёл разумным добавить вектор Avec
 		double tau=0, *Avec = mul(A,vec);
-		tau=-scala(Avec,vec)/scala(Avec,Avec);
+		tau=+scala(Avec,vec)/scala(Avec,Avec);
 		delete[] Avec;
 		for (int i=0;i<N;i++)
 		{
-			x[i]-=tau*vec[i];
+			x[i]+=tau*vec[i];
 			//diff=x[i]-xOld[i], но так экономнее
 			diff+=fabs(tau*vec[i]);
 		}
