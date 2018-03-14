@@ -94,7 +94,7 @@ void scherbakovdv::lab2()
 
 
 /**
- * Метод прогонки - done and passed
+ * Метод прогонки - passed
  */
 void scherbakovdv::lab3()
 {
@@ -218,7 +218,7 @@ void scherbakovdv::lab5()
 
 
 /**
- * Метод минимальных невязок - done
+ * Метод минимальных невязок - passed
  */
 void scherbakovdv::lab6()
 {
