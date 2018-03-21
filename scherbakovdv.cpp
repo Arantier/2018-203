@@ -309,7 +309,40 @@ void scherbakovdv::lab7()
  */
 void scherbakovdv::lab8()
 {
-
+	double ** AOld = new double[N];
+	//Допустимая погрешность
+	const double Eps=0.1E-10;
+	printf("LAB 7: Eps is %.2e",Eps);
+	//Аварийный счётчик
+	int counter=0;
+	for (int i=0;i<N;i++)
+	{
+		AOld[i]=new double[N];
+		memcpy(AOld[i],A[i],MSIZE);
+	}
+	do {
+		int MRow=0,MCol=0;
+		for (int i=0;i<N;i++)
+			for (int j=0;j<N-i;j++)
+				if (fabs(A[i][j])>fabs(A[MRow],[MCol])){
+					MRow=i;
+					MCol=j;
+				}
+		double angle = atan(2*A[MRow][MCol]/(A[MRow][MRow]-A[MCol][MCol]))/2;
+		double** H = new double[N];
+		for (int i=0;i<N;i++){
+			H[i]=new double[N];
+			memset(H[i],0,MSIZE);
+			H[i][i]=1;
+		}
+		H[MRow][MRow]=H[MCol][MCol]=cos(angle);
+		H[MRow][MCol]=sin(angle);
+		H[MCol][MRow]=-H[MRow][MCol];
+		A=mul(A,H);
+		H[MRow][MCol]=-sin(angle);
+		H[MCol][MRow]=-H[MRow][MCol];
+		A=mul(H,A);
+	} while();
 }
 
 
