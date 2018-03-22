@@ -309,7 +309,20 @@ void scherbakovdv::lab7()
  */
 void scherbakovdv::lab8()
 {
-
+	//Допустимая погрешность
+	const double Eps=0.1E-10;
+	printf("LAB 7: Eps is %.2e",Eps);
+	//Аварийный счётчик
+	int it=0,Mi=0,Mj=0;
+	double diff;
+	do{
+		for (int i=0;i<N;i++)
+			for (int j=0;j<N;j++)
+				if (A[i][j]>A[Mi][Mj]){
+					Mi=i;Mj=j;
+				}
+	}
+	// printf("Counter equals:%d",counter);
 }
 
 
