@@ -46,7 +46,7 @@ void scherbakovdv::lab1()
 
 
 /**
- * Метод Гаусса с выбором главного элемента - done and passed
+ * Метод Гаусса с выбором главного элемента - passed
  */
 void scherbakovdv::lab2()
 {
@@ -94,7 +94,7 @@ void scherbakovdv::lab2()
 
 
 /**
- * Метод прогонки - done and passed
+ * Метод прогонки - passed
  */
 void scherbakovdv::lab3()
 {
@@ -117,7 +117,7 @@ void scherbakovdv::lab3()
 
 
 /**
- * Метод простых итераций - working
+ * Метод простых итераций - passed
  */
 void scherbakovdv::lab4()
 {
@@ -181,7 +181,7 @@ void scherbakovdv::lab4()
 
 
 /**
- * Метод Якоби или Зейделя - done
+ * Метод Якоби или Зейделя - passed
  */
 void scherbakovdv::lab5()
 {
@@ -218,7 +218,7 @@ void scherbakovdv::lab5()
 
 
 /**
- * Метод минимальных невязок - done
+ * Метод минимальных невязок - passed
  */
 void scherbakovdv::lab6()
 {
@@ -239,11 +239,11 @@ void scherbakovdv::lab6()
 		//Поиск параметра тау в формуле X^(k+1)=X^(k)-tau*vec
 		//Из-за обилия A*vec я счёл разумным добавить вектор Avec
 		double tau=0, *Avec = mul(A,vec);
-		tau=-scala(Avec,vec)/scala(Avec,Avec);
+		tau=+scala(Avec,vec)/scala(Avec,Avec);
 		delete[] Avec;
 		for (int i=0;i<N;i++)
 		{
-			x[i]-=tau*vec[i];
+			x[i]+=tau*vec[i];
 			//diff=x[i]-xOld[i], но так экономнее
 			diff+=fabs(tau*vec[i]);
 		}
@@ -309,10 +309,15 @@ void scherbakovdv::lab7()
  */
 void scherbakovdv::lab8()
 {
+<<<<<<< HEAD
+=======
+	double ** AOld = new double[N];
+>>>>>>> 272f7d21a79a01466bfd2536aca6f455dc155adf
 	//Допустимая погрешность
 	const double Eps=0.1E-10;
 	printf("LAB 7: Eps is %.2e",Eps);
 	//Аварийный счётчик
+<<<<<<< HEAD
 	int it=0,Mi=0,Mj=0;
 	double diff;
 	do{
@@ -323,6 +328,37 @@ void scherbakovdv::lab8()
 				}
 	}
 	// printf("Counter equals:%d",counter);
+=======
+	int counter=0;
+	for (int i=0;i<N;i++)
+	{
+		AOld[i]=new double[N];
+		memcpy(AOld[i],A[i],MSIZE);
+	}
+	do {
+		int MRow=0,MCol=0;
+		for (int i=0;i<N;i++)
+			for (int j=0;j<N-i;j++)
+				if (fabs(A[i][j])>fabs(A[MRow],[MCol])){
+					MRow=i;
+					MCol=j;
+				}
+		double angle = atan(2*A[MRow][MCol]/(A[MRow][MRow]-A[MCol][MCol]))/2;
+		double** H = new double[N];
+		for (int i=0;i<N;i++){
+			H[i]=new double[N];
+			memset(H[i],0,MSIZE);
+			H[i][i]=1;
+		}
+		H[MRow][MRow]=H[MCol][MCol]=cos(angle);
+		H[MRow][MCol]=sin(angle);
+		H[MCol][MRow]=-H[MRow][MCol];
+		A=mul(A,H);
+		H[MRow][MCol]=-sin(angle);
+		H[MCol][MRow]=-H[MRow][MCol];
+		A=mul(H,A);
+	} while();
+>>>>>>> 272f7d21a79a01466bfd2536aca6f455dc155adf
 }
 
 
