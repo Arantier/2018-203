@@ -46,11 +46,11 @@ void scherbakovdv::printm(double** mat){
 }
 
 /**
- * Введение в дисциплину
+ * Решение нелинейных уравнений
  */
 void scherbakovdv::lab1()
 {
-	printf("Hello world");
+	
 }
 
 
@@ -266,7 +266,7 @@ void scherbakovdv::lab6()
 
 
 /**
- * Метод сопряженных градиентов - done
+ * Метод сопряженных градиентов - passed
  */
 void scherbakovdv::lab7()
 {
@@ -314,7 +314,7 @@ void scherbakovdv::lab7()
 
 
 /**
- * Метод вращения для нахождения собственных значений матрицы
+ * Метод вращения для нахождения собственных значений матрицы - passed
  */
 void scherbakovdv::lab8()
 {
@@ -379,7 +379,6 @@ void scherbakovdv::lab9()
 {
 	
 }
-
 
 
 std::string scherbakovdv::get_name()
