@@ -36,6 +36,15 @@ double** scherbakovdv::mul(double** mat1, double** mat2){
 	return res;
 }
 
+void scherbakovdv::printm(double** mat){
+	for (int i=0;i<N;i++){
+		printf("[");
+		for (int j=0;j<N;j++)
+			printf((j!=N-1) ? "%.2f " : "%.2f",mat[i][j]);
+		printf("]\n");
+	}
+}
+
 /**
  * Введение в дисциплину
  */
@@ -310,57 +319,55 @@ void scherbakovdv::lab7()
 void scherbakovdv::lab8()
 {
 	//Допустимая погрешность
-	const double Eps=0.1E-10;
-	double fault = 0;
-	for (int i=0;i<N;i++)
-		for (int j=0;j<N;j++)
-			fault+=A[i][j]*A[i][j];
-	fault=sqrt(2*fault);//?
-	printf("LAB 7: Eps is %.2e",Eps);
+	const double Eps=0.1E-5;
+	printf("LAB 7: Eps is %.2e\n",Eps);
 	//Аварийный счётчик
-	// int counter=0;
+	int counter=0;
 	double** AOld = new double*[N];
 	for (int i=0;i<N;i++)
 	{
 		AOld[i]=new double[N];
 		memcpy(AOld[i],A[i],MSIZE);
 	}
+	double max = 0;
+	int MRow=0,MCol=0;
 	do {
-		int MRow=0,MCol=0;
+		max=0;
 		for (int i=0;i<N;i++)
-			for (int j=0;j<N-i;j++)
-				if ((fabs(A[i][j])>fabs(A[MRow][MCol]))&&(A[i][j]!=0)) {
+			for (int j=i-1;j!=-1;j--)
+			{
+				if (fabs(A[i][j])>fabs(max)) {
+					max=A[i][j];
 					MRow=i;
 					MCol=j;
 				}
-		double a = 0.5*atan(2*A[MRow][MCol]/(A[MRow][MRow]-A[MCol][MCol]));
-		double s = sin(a), c = cos(a);
-		double** H = new double*[N];
-		double** tmp = new double*[N];
-		for (int i=0;i<N;i++) {
-			tmp[i] = new double[N];
-			memset(tmp[i],0,MSIZE);
+			}
+		if (fabs(max)>Eps){
+			double a = 0.5*atan(2*A[MRow][MCol]/(A[MRow][MRow]-A[MCol][MCol]));
+			// printf("Angle equals %f\n",a);
+			double s = sin(a), c = cos(a);
+			double** H = new double*[N];
+			for (int i=0;i<N;i++) {
+				H[i]= new double[N];
+				memset(H[i],0,MSIZE);
+				H[i][i]=1.0;
+			}
+			H[MRow][MRow]=H[MCol][MCol] = c;
+			H[MRow][MCol] = -s; 
+			H[MCol][MRow] = s;
+			A=mul(A,H);
+			H[MRow][MCol] = s; 
+			H[MCol][MRow] = -s;
+			A=mul(H,A);
+			for (int i=0;i<N;i++)
+				delete[] H[i];
+			delete[] H;
 		}
-		for (int i=0;i<N;i++) {
-			H[i]= new double[N];
-			memset(H[i],0,MSIZE);
-			H[i][i]=1.0;
-		}
-		H[MRow][MRow]=H[MCol][MCol] = c;
-		H[MRow][MCol] = -s; 
-		H[MCol][MRow] = s;
-		for (int i = 0; i < N; i ++ ) 
-			for (int j = 0; j < N; j ++ ) 
-				for (int k = 0; k < N; k ++ ) 
-					tmp[i][j] = tmp[i][j] + H[k][i] * AOld[k][j];//?
-		A = mul(tmp,H);
-		fault = 0.0;
-		for (int i = 0; i < N; i ++ ) 
-			for (int j = i+1; j < N; j ++ ) 
-				fault+=A[i][j]*A[i][j];
-		fault = sqrt(2*fault);
-		//Погрешность всегда превышает точность
-	} while(fault>Eps);
+		// printf("Fault=%f\n",fault);
+	} while((fabs(max)>Eps)&&(counter++<1000));
+	printf("Counter is:%d\nMaximum is:%f\n",counter,max);
+	for (int i=0;i<N;i++)
+		x[i]=A[i][i];
 }
 
 
