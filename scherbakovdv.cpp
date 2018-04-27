@@ -36,17 +36,43 @@ double** scherbakovdv::mul(double** mat1, double** mat2){
 	return res;
 }
 
+void scherbakovdv::printm(double** mat){
+	for (int i=0;i<N;i++){
+		printf("[");
+		for (int j=0;j<N;j++)
+			printf((j!=N-1) ? "%.2f " : "%.2f",mat[i][j]);
+		printf("]\n");
+	}
+}
+
 /**
- * Введение в дисциплину
+ * Решение нелинейных уравнений
  */
+ double f(double x){
+	 //Возьмём что-то простое
+	 return pow(x,2)-5*x+6;
+ }
+ double ff(double x){
+	 return 2*x-5;
+ }
 void scherbakovdv::lab1()
 {
-	printf("Hello world");
+	//Допустимая погрешность
+	const double Eps=0.1E-10;
+	//Аварийный счётчик
+	int counter=0;
+	double X,XNext;
+	XNext=0;
+	do{
+		X=XNext;
+		XNext=X-f(X)/ff(X);
+	} while((abs(XNext-X)>Eps)&&(counter++<1000));
+	printf("\n\n\nX=%f\n\n\n\n",XNext);
 }
 
 
 /**
- * Метод Гаусса с выбором главного элемента - done and passed
+ * Метод Гаусса с выбором главного элемента - passed
  */
 void scherbakovdv::lab2()
 {
@@ -94,7 +120,7 @@ void scherbakovdv::lab2()
 
 
 /**
- * Метод прогонки - done and passed
+ * Метод прогонки - passed
  */
 void scherbakovdv::lab3()
 {
@@ -117,7 +143,7 @@ void scherbakovdv::lab3()
 
 
 /**
- * Метод простых итераций - working
+ * Метод простых итераций - passed
  */
 void scherbakovdv::lab4()
 {
@@ -181,7 +207,7 @@ void scherbakovdv::lab4()
 
 
 /**
- * Метод Якоби или Зейделя - done
+ * Метод Якоби или Зейделя - passed
  */
 void scherbakovdv::lab5()
 {
@@ -218,7 +244,7 @@ void scherbakovdv::lab5()
 
 
 /**
- * Метод минимальных невязок - done
+ * Метод минимальных невязок - passed
  */
 void scherbakovdv::lab6()
 {
@@ -239,11 +265,11 @@ void scherbakovdv::lab6()
 		//Поиск параметра тау в формуле X^(k+1)=X^(k)-tau*vec
 		//Из-за обилия A*vec я счёл разумным добавить вектор Avec
 		double tau=0, *Avec = mul(A,vec);
-		tau=-scala(Avec,vec)/scala(Avec,Avec);
+		tau=+scala(Avec,vec)/scala(Avec,Avec);
 		delete[] Avec;
 		for (int i=0;i<N;i++)
 		{
-			x[i]-=tau*vec[i];
+			x[i]+=tau*vec[i];
 			//diff=x[i]-xOld[i], но так экономнее
 			diff+=fabs(tau*vec[i]);
 		}
@@ -257,7 +283,7 @@ void scherbakovdv::lab6()
 
 
 /**
- * Метод сопряженных градиентов - done
+ * Метод сопряженных градиентов - passed
  */
 void scherbakovdv::lab7()
 {
@@ -305,11 +331,60 @@ void scherbakovdv::lab7()
 
 
 /**
- * Метод вращения для нахождения собственных значений матрицы
+ * Метод вращения для нахождения собственных значений матрицы - passed
  */
 void scherbakovdv::lab8()
 {
-
+	//Допустимая погрешность
+	const double Eps=0.1E-5;
+	printf("LAB 7: Eps is %.2e\n",Eps);
+	//Аварийный счётчик
+	int counter=0;
+	double** AOld = new double*[N];
+	for (int i=0;i<N;i++)
+	{
+		AOld[i]=new double[N];
+		memcpy(AOld[i],A[i],MSIZE);
+	}
+	double max = 0;
+	int MRow=0,MCol=0;
+	do {
+		max=0;
+		for (int i=0;i<N;i++)
+			for (int j=i-1;j!=-1;j--)
+			{
+				if (fabs(A[i][j])>fabs(max)) {
+					max=A[i][j];
+					MRow=i;
+					MCol=j;
+				}
+			}
+		if (fabs(max)>Eps){
+			double a = 0.5*atan(2*A[MRow][MCol]/(A[MRow][MRow]-A[MCol][MCol]));
+			// printf("Angle equals %f\n",a);
+			double s = sin(a), c = cos(a);
+			double** H = new double*[N];
+			for (int i=0;i<N;i++) {
+				H[i]= new double[N];
+				memset(H[i],0,MSIZE);
+				H[i][i]=1.0;
+			}
+			H[MRow][MRow]=H[MCol][MCol] = c;
+			H[MRow][MCol] = -s; 
+			H[MCol][MRow] = s;
+			A=mul(A,H);
+			H[MRow][MCol] = s; 
+			H[MCol][MRow] = -s;
+			A=mul(H,A);
+			for (int i=0;i<N;i++)
+				delete[] H[i];
+			delete[] H;
+		}
+		// printf("Fault=%f\n",fault);
+	} while((fabs(max)>Eps)&&(counter++<1000));
+	printf("Counter is:%d\nMaximum is:%f\n",counter,max);
+	for (int i=0;i<N;i++)
+		x[i]=A[i][i];
 }
 
 
@@ -319,9 +394,29 @@ void scherbakovdv::lab8()
  */
 void scherbakovdv::lab9() 
 {
-	
+	//Допустимая погрешность
+	const double Eps=0.1E-5;
+	printf("LAB 7: Eps is %.2e\n",Eps);
+	//Аварийный счётчик
+	int counter=0;
+	double* Y = new double[N];
+	double* YNext = new double[N];
+	double MSelf, Self;
+	memset(Y,0,MSIZE);
+	Y[0]=1;
+	do {
+		Self = sqrt(scala(Y,Y));
+		memset(YNext,0,MSIZE);
+		for (int i=0;i<N;i++)
+			for (int j=0;j<N;j++)
+				YNext[i]+=A[i][j]*Y[j]/Self;
+		MSelf = sqrt(scala(YNext,YNext));
+		memcpy(Y,YNext,MSIZE);
+	} while((abs(MSelf-Self)>Eps)&&(counter++<1000));
+	printf("\n\n\n%f\n\n\n",MSelf);
+	delete[] Y;
+	delete[] YNext;
 }
-
 
 
 std::string scherbakovdv::get_name()
