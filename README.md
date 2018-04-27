@@ -25,4 +25,4 @@
  
  // лог изменений
  git log --graph --decorate --all
- 
+ //
